@@ -159,3 +159,7 @@ dotnet .\publish\SlqStudio.Web.dll
 - Для production установите `Secure=true` для JWT cookie и используйте HTTPS.
 - Ограничьте доступ к странице конфигурации (`/Config/*`) на уровне сети или reverse proxy.
 - Используйте отдельные сервисные учетные записи для MySQL, SQL Server, Moodle API и SMTP.
+
+
+## Статус
+[![Build and Test](https://github.com/Olgasn/SqlStudio/actions/workflows/ci.yml/badge.svg)](https://github.com/Olgasn/SqlStudio/actions/workflows/ci.yml)
