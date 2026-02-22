@@ -43,7 +43,14 @@ public class SolutionController : BaseMvcController
         try
         {
             LogInfo($"Запрос на отображение задания с ID {taskId}.");
-            var variant = _variantServices.GetVariantFromCache(HttpContext.Session.GetString("UserEmail"));
+            var email = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                LogWarning("Невозможно получить вариант: UserEmail отсутствует в сессии.");
+                return Unauthorized();
+            }
+
+            var variant = _variantServices.GetVariantFromCache(email);
             if (!variant.Any(v => v.Id == taskId))
             {
                 LogWarning($"Доступ к задаче с ID {taskId} запрещен. Пользователь не имеет доступа.");

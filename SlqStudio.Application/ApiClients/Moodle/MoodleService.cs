@@ -11,7 +11,7 @@ public class MoodleService : IMoodleService
         _moodleApiClient = moodleApiClient;
     }
 
-    public async Task<MoodleUserProfileResponse> GetUserProfileAsync(int userId, int courseId)
+    public async Task<MoodleUserProfileResponse?> GetUserProfileAsync(int userId, int courseId)
     {
         var parameters = new Dictionary<string, string>
         {
@@ -29,7 +29,7 @@ public class MoodleService : IMoodleService
             "core_course_get_courses", parameters);
     }
     
-    public async Task<MoodleCourseResponse> GetAllCourseByName(string courseName)
+    public async Task<MoodleCourseResponse?> GetAllCourseByName(string courseName)
     {
         var parameters = new Dictionary<string, string>();
         var allCourses = await _moodleApiClient.SendRequestAsync<MoodleCourseResponse>(
@@ -37,7 +37,7 @@ public class MoodleService : IMoodleService
         return allCourses.FirstOrDefault(e => e.Displayname == courseName);
     }
     
-    public async Task<MoodleUserProfileResponse> GetUserByEmailAsync(string email)
+    public async Task<MoodleUserProfileResponse?> GetUserByEmailAsync(string email)
     {
         var parameters = new Dictionary<string, string>
         {

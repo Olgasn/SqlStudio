@@ -11,7 +11,7 @@ public static class SessionExtensions
     }
 
     // Получение объекта из сессии
-    public static T GetObjectFromJson<T>(this ISession session, string key)
+    public static T? GetObjectFromJson<T>(this ISession session, string key)
     {
         var value = session.GetString(key);
         return value == null ? default : JsonConvert.DeserializeObject<T>(value);

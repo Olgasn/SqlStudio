@@ -41,6 +41,6 @@ public class MoodleApiClient
         response.EnsureSuccessStatusCode();
 
         string jsonResponse = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<List<TResponse>>(jsonResponse);
+        return JsonConvert.DeserializeObject<List<TResponse>>(jsonResponse) ?? new List<TResponse>();
     }
 }

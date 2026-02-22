@@ -82,7 +82,7 @@ public class FileLogger : ILogger, IDisposable
         }
     }
 
-    public IDisposable BeginScope<TState>(TState state) => this;
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => this;
 
     public void Dispose() { }
 

@@ -73,16 +73,30 @@ public class ReportController : BaseMvcController
             LogInfo("Создание ReportDto...");
             var user = GetUserFromSession();
             var solutionResults = GetSolutionResultsFromSession();
-            var variant = _variantServices.GetVariantFromCache(user.Email);
+            var variant = string.IsNullOrWhiteSpace(user.Email)
+                ? new List<LabTask>()
+                : _variantServices.GetVariantFromCache(user.Email);
             
             var labWorks = new List<LabWork>();
 
             foreach (var solutionResult in solutionResults)
             {
                 var taskItem = await _mediator.Send(new GetTaskByIdQuery(solutionResult.TaskId));
+                if (taskItem == null)
+                {
+                    LogWarning($"Задача с ID {solutionResult.TaskId} не найдена при формировании отчета.");
+                    continue;
+                }
+
                 if (!labWorks.Any(l => l.Id == taskItem.LabWork.Id))
                 {
                     var labWork = await _mediator.Send(new GetLabWorkByIdQuery(taskItem.LabWork.Id));
+                    if (labWork == null)
+                    {
+                        LogWarning($"Лабораторная работа с ID {taskItem.LabWork.Id} не найдена при формировании отчета.");
+                        continue;
+                    }
+
                     labWork.Tasks = labWork.Tasks
                                             .Where(task => variant.Any(v => v.Id == task.Id))
                                             .ToList();
@@ -111,8 +125,8 @@ public class ReportController : BaseMvcController
 
         return new UserDto
         {
-            Email = email,
-            Name = name
+            Email = email ?? string.Empty,
+            Name = name ?? string.Empty
         };
     }
 

@@ -1,62 +1,75 @@
-﻿using iTextSharp.text;
-using iTextSharp.text.pdf;
+using iText.IO.Font;
+using iText.IO.Font.Constants;
+using iText.Kernel.Colors;
+using iText.Kernel.Font;
+using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Borders;
+using iText.Layout.Element;
+using iText.Layout.Properties;
 using SlqStudio.DTO;
 using SlqStudio.Persistence.Models;
-using System.IO;
-using System.Linq;
-using SlqStudio.Application.Services.ReportBuider;
+
+namespace SlqStudio.Application.Services.ReportBuider;
 
 public class PdfReportBuilder : IPdfReportBuilder, IDisposable
 {
-    private Document _document;
-    private MemoryStream _memoryStream;
-    private PdfWriter _writer;
-    private Font _normalFont;
-    private Font _boldFont;
-    private Font _headerFont;
-    private Font _subHeaderFont;
-    private Font _codeFont;
-    private BaseColor _successColor;
-    private BaseColor _dangerColor;
-    private BaseColor _tableHeaderColor;
-    private BaseColor _resultBoxColor;
+    private readonly MemoryStream _memoryStream = new();
+    private readonly PdfWriter _writer;
+    private readonly PdfDocument _pdfDocument;
+    private readonly Document _document;
+
+    private readonly PdfFont _normalFont;
+    private readonly PdfFont _boldFont;
+    private readonly PdfFont _headerFont;
+    private readonly PdfFont _subHeaderFont;
+    private readonly PdfFont _codeFont;
+
+    private readonly DeviceRgb _successColor = new(212, 237, 218);
+    private readonly DeviceRgb _dangerColor = new(248, 215, 218);
+    private readonly DeviceRgb _tableHeaderColor = new(200, 200, 200);
+    private readonly DeviceRgb _resultBoxColor = new(227, 227, 227);
+    private readonly DeviceRgb _codeBackgroundColor = new(39, 40, 34);
+    private readonly DeviceRgb _codeForegroundColor = new(248, 248, 242);
+
+    private bool _isClosed;
 
     public PdfReportBuilder()
     {
-        _memoryStream = new MemoryStream();
-        _document = new Document(PageSize.A4, 40, 40, 40, 40);
-        _writer = PdfWriter.GetInstance(_document, _memoryStream);
-        
-        FontFactory.RegisterDirectories();
-        _normalFont = FontFactory.GetFont("Arial", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 10, Font.NORMAL, BaseColor.BLACK);
-        _boldFont = FontFactory.GetFont("Arial", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 10, Font.BOLD, BaseColor.BLACK);
-        _headerFont = FontFactory.GetFont("Arial", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 16, Font.BOLD, BaseColor.DARK_GRAY);
-        _subHeaderFont = FontFactory.GetFont("Arial", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 12, Font.BOLD, BaseColor.DARK_GRAY);
-        _codeFont = FontFactory.GetFont("Courier New", BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 8, Font.NORMAL, BaseColor.BLACK);
-        
-        _successColor = new BaseColor(212, 237, 218);
-        _dangerColor = new BaseColor(248, 215, 218);
-        _tableHeaderColor = new BaseColor(200, 200, 200);
-        _resultBoxColor = new BaseColor(227, 227, 227);
-        
-        _document.Open();
+        _writer = new PdfWriter(_memoryStream);
+        _pdfDocument = new PdfDocument(_writer);
+        _document = new Document(_pdfDocument, PageSize.A4);
+        _document.SetMargins(40, 40, 40, 40);
+
+        (_normalFont, _boldFont, _headerFont, _subHeaderFont, _codeFont) = CreateFonts();
     }
 
     public IReportBuilder AddUserInfo(UserDto user)
     {
-        // Добавляем дату и время в заголовок
-        var dateTime = new Paragraph($"Дата: {DateTime.Now:dd.MM.yyyy HH:mm}", _normalFont);
-        dateTime.Alignment = Element.ALIGN_RIGHT;
-        _document.Add(dateTime);
-        
-        var title = new Paragraph("Отчет по тесту", _headerFont);
-        title.SpacingAfter = 15f;
-        _document.Add(title);
-        
-        _document.Add(new Paragraph($"Пользователь: {user.Name ?? "Не указан"}", _normalFont));
-        _document.Add(new Paragraph($"Email: {user.Email ?? "Не указан"}", _normalFont));
-        _document.Add(new Paragraph(" "));
-        
+        _document.Add(
+            new Paragraph($"Дата: {DateTime.Now:dd.MM.yyyy HH:mm}")
+                .SetFont(_normalFont)
+                .SetFontSize(10)
+                .SetTextAlignment(TextAlignment.RIGHT));
+
+        _document.Add(
+            new Paragraph("Отчет по тесту")
+                .SetFont(_headerFont)
+                .SetFontSize(16)
+                .SetMarginBottom(15));
+
+        _document.Add(
+            new Paragraph($"Пользователь: {user.Name}")
+                .SetFont(_normalFont)
+                .SetFontSize(10));
+
+        _document.Add(
+            new Paragraph($"Email: {user.Email}")
+                .SetFont(_normalFont)
+                .SetFontSize(10)
+                .SetMarginBottom(10));
+
         return this;
     }
 
@@ -64,20 +77,24 @@ public class PdfReportBuilder : IPdfReportBuilder, IDisposable
     {
         foreach (var lab in labWorks)
         {
-            int totalTasks = 0;
-            int completedTasks = 0;
+            var totalTasks = 0;
+            var completedTasks = 0;
 
-            var labTitle = new Paragraph(lab.Name ?? "Без названия", _subHeaderFont);
-            labTitle.SpacingAfter = 10f;
-            _document.Add(labTitle);
-            
-            _document.Add(new Paragraph($"Курс: {lab.Course?.Name ?? "Не указан"}", _normalFont));
-            _document.Add(new Paragraph(" "));
+            _document.Add(
+                new Paragraph(lab.Name)
+                    .SetFont(_subHeaderFont)
+                    .SetFontSize(12)
+                    .SetMarginBottom(10));
 
-            PdfPTable table = new PdfPTable(4);
-            table.WidthPercentage = 100;
-            table.SetWidths(new float[] { 1f, 3f, 4f, 2f });
-            
+            _document.Add(
+                new Paragraph($"Курс: {lab.Course?.Name ?? "Не указан"}")
+                    .SetFont(_normalFont)
+                    .SetFontSize(10)
+                    .SetMarginBottom(8));
+
+            var table = new Table(UnitValue.CreatePercentArray(new float[] { 1f, 3f, 4f, 2f }))
+                .UseAllAvailableWidth();
+
             AddTableHeaderCell(table, "№ Задачи");
             AddTableHeaderCell(table, "Название");
             AddTableHeaderCell(table, "Решение");
@@ -85,136 +102,192 @@ public class PdfReportBuilder : IPdfReportBuilder, IDisposable
 
             foreach (var task in lab.Tasks ?? Enumerable.Empty<LabTask>())
             {
-                var solution = solutions?.FirstOrDefault(s => s.TaskId == task.Id);
-                bool isSuccess = solution?.IsSuccess == true;
-                string status = isSuccess ? "✅ Выполнено" : "❌ Не выполнено";
-                string userSolution = solution?.UserSolutionText ?? "Решение отсутствует";
-                string shortSolution = userSolution.Length > 50 ? userSolution.Substring(0, 50) + "..." : userSolution;
+                var solution = solutions.FirstOrDefault(s => s.TaskId == task.Id);
+                var isSuccess = solution?.IsSuccess == true;
+                var status = isSuccess ? "Выполнено" : "Не выполнено";
+                var userSolution = solution?.UserSolutionText ?? "Решение отсутствует";
+                var shortSolution = userSolution.Length > 50
+                    ? userSolution[..50] + "..."
+                    : userSolution;
 
                 var cellColor = isSuccess ? _successColor : _dangerColor;
-                
+
                 AddTableCell(table, task.Number.ToString(), cellColor);
-                AddTableCell(table, task.Title ?? "Без названия", cellColor);
+                AddTableCell(table, task.Title, cellColor);
                 AddTableCell(table, shortSolution, cellColor);
                 AddTableCell(table, status, cellColor);
 
                 totalTasks++;
-                if (isSuccess) completedTasks++;
+                if (isSuccess)
+                {
+                    completedTasks++;
+                }
             }
 
             _document.Add(table);
-            _document.Add(new Paragraph(" "));
 
             if (totalTasks > 0)
             {
-                double score = (double)completedTasks / totalTasks * 10;
-                double percentage = (double)completedTasks / totalTasks * 100;
+                var score = (double)completedTasks / totalTasks * 10;
+                var percentage = (double)completedTasks / totalTasks * 100;
 
-                var resultBox = new PdfPTable(1);
-                resultBox.WidthPercentage = 100;
-                resultBox.DefaultCell.Border = Rectangle.NO_BORDER;
-                resultBox.DefaultCell.BackgroundColor = _resultBoxColor;
-                resultBox.DefaultCell.Padding = 10f;
-                resultBox.SpacingBefore = 10f;
-                resultBox.SpacingAfter = 20f;
+                var resultBox = new Div()
+                    .SetBackgroundColor(_resultBoxColor)
+                    .SetPadding(10)
+                    .SetMarginTop(10)
+                    .SetMarginBottom(20);
 
-                var titleCell = new PdfPCell(new Phrase("Результаты лабораторной", _boldFont));
-                titleCell.Border = Rectangle.NO_BORDER;
-                resultBox.AddCell(titleCell);
+                resultBox.Add(
+                    new Paragraph("Результаты лабораторной")
+                        .SetFont(_boldFont)
+                        .SetFontSize(10)
+                        .SetMarginBottom(5));
 
-                var resultText = $"Оценка: {score:0.00} из 10,00 ({percentage:0.00}%)";
-                var resultCell = new PdfPCell(new Phrase(resultText, _normalFont));
-                resultCell.Border = Rectangle.NO_BORDER;
-                resultBox.AddCell(resultCell);
+                resultBox.Add(
+                    new Paragraph($"Оценка: {score:0.00} из 10,00 ({percentage:0.00}%)")
+                        .SetFont(_normalFont)
+                        .SetFontSize(10)
+                        .SetMargin(0));
 
                 _document.Add(resultBox);
             }
             else
             {
-                var noData = new Paragraph("Нет данных для оценки.", _normalFont);
-                noData.SpacingAfter = 20f;
-                _document.Add(noData);
+                _document.Add(
+                    new Paragraph("Нет данных для оценки.")
+                        .SetFont(_normalFont)
+                        .SetFontSize(10)
+                        .SetMarginBottom(20));
             }
         }
-        
+
         return this;
     }
 
     public IReportBuilder AddSolutionDetails(List<SolutionResultDto> solutions, List<LabWork> labWorks)
     {
-        var detailsTitle = new Paragraph("Детали решений", _subHeaderFont);
-        detailsTitle.SpacingAfter = 10f;
-        _document.Add(detailsTitle);
+        _document.Add(
+            new Paragraph("Детали решений")
+                .SetFont(_subHeaderFont)
+                .SetFontSize(12)
+                .SetMarginBottom(10));
 
-        foreach (var solution in solutions ?? Enumerable.Empty<SolutionResultDto>())
+        foreach (var solution in solutions)
         {
-            var lab = labWorks?.FirstOrDefault(l => l.Tasks?.Any(t => t.Id == solution.TaskId) == true);
-            var task = lab?.Tasks?.FirstOrDefault(t => t.Id == solution.TaskId);
+            var lab = labWorks.FirstOrDefault(l => l.Tasks.Any(t => t.Id == solution.TaskId));
+            var task = lab?.Tasks.FirstOrDefault(t => t.Id == solution.TaskId);
 
-            var taskTitleText = $"{lab?.Name ?? "Неизвестная лабораторная"} - {task?.Title ?? "Неизвестная задача"}";
-            var taskTitle = new Paragraph(taskTitleText, _boldFont);
-            taskTitle.SpacingAfter = 5f;
-            _document.Add(taskTitle);
+            _document.Add(
+                new Paragraph($"{lab?.Name ?? "Неизвестная лабораторная"} - {task?.Title ?? "Неизвестная задача"}")
+                    .SetFont(_boldFont)
+                    .SetFontSize(10)
+                    .SetMarginBottom(5));
 
-            string solutionText = solution.UserSolutionText ?? "Решение отсутствует";
-            
-            var codeBlock = new PdfPTable(1);
-            codeBlock.WidthPercentage = 100;
-            codeBlock.DefaultCell.Border = Rectangle.NO_BORDER;
-            codeBlock.DefaultCell.BackgroundColor = new BaseColor(39, 40, 34);
-            codeBlock.DefaultCell.Padding = 10f;
-            codeBlock.SpacingAfter = 15f;
+            var codeBlock = new Div()
+                .SetBackgroundColor(_codeBackgroundColor)
+                .SetPadding(10)
+                .SetMarginBottom(15);
 
-            var codeCell = new PdfPCell(new Phrase(solutionText, _codeFont));
-            codeCell.Border = Rectangle.NO_BORDER;
-            codeCell.HorizontalAlignment = Element.ALIGN_LEFT;
-            codeBlock.AddCell(codeCell);
+            codeBlock.Add(
+                new Paragraph(solution.UserSolutionText)
+                    .SetFont(_codeFont)
+                    .SetFontColor(_codeForegroundColor)
+                    .SetFontSize(8)
+                    .SetMargin(0));
 
             _document.Add(codeBlock);
         }
-        
+
         return this;
-    }
-
-    private void AddTableHeaderCell(PdfPTable table, string text)
-    {
-        var cell = new PdfPCell(new Phrase(text, _boldFont));
-        cell.BackgroundColor = _tableHeaderColor;
-        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        cell.VerticalAlignment = Element.ALIGN_MIDDLE;
-        cell.Padding = 5f;
-        cell.BorderColor = BaseColor.WHITE;
-        table.AddCell(cell);
-    }
-
-    private void AddTableCell(PdfPTable table, string text, BaseColor backgroundColor)
-    {
-        var cell = new PdfPCell(new Phrase(text, _normalFont));
-        cell.BackgroundColor = backgroundColor;
-        cell.HorizontalAlignment = Element.ALIGN_LEFT;
-        cell.VerticalAlignment = Element.ALIGN_MIDDLE;
-        cell.Padding = 5f;
-        table.AddCell(cell);
     }
 
     public byte[] Build()
     {
-        try
-        {
-            _document.Close();
-            return _memoryStream.ToArray();
-        }
-        finally
-        {
-            Dispose();
-        }
+        CloseDocumentIfNeeded();
+        return _memoryStream.ToArray();
     }
 
     public void Dispose()
     {
-        _writer?.Close();
-        _writer?.Dispose();
-        _memoryStream?.Dispose();
-        _document?.Dispose();
+        CloseDocumentIfNeeded();
+        _memoryStream.Dispose();
+    }
+
+    private static (PdfFont normal, PdfFont bold, PdfFont header, PdfFont subHeader, PdfFont code) CreateFonts()
+    {
+        var regularFontPath = ResolveFontPath(
+            @"C:\Windows\Fonts\arial.ttf",
+            @"C:\Windows\Fonts\segoeui.ttf");
+
+        var boldFontPath = ResolveFontPath(
+            @"C:\Windows\Fonts\arialbd.ttf",
+            @"C:\Windows\Fonts\segoeuib.ttf",
+            regularFontPath ?? string.Empty);
+
+        var codeFontPath = ResolveFontPath(
+            @"C:\Windows\Fonts\consola.ttf",
+            @"C:\Windows\Fonts\cour.ttf",
+            regularFontPath ?? string.Empty);
+
+        var regular = CreateFontOrFallback(regularFontPath);
+        var bold = CreateFontOrFallback(boldFontPath);
+        var code = CreateFontOrFallback(codeFontPath);
+
+        return (regular, bold, bold, bold, code);
+    }
+
+    private static string? ResolveFontPath(params string[] candidates)
+    {
+        foreach (var candidate in candidates)
+        {
+            if (!string.IsNullOrWhiteSpace(candidate) && File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private static PdfFont CreateFontOrFallback(string? fontPath)
+    {
+        if (!string.IsNullOrWhiteSpace(fontPath) && File.Exists(fontPath))
+        {
+            return PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+        }
+
+        return PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+    }
+
+    private void AddTableHeaderCell(Table table, string text)
+    {
+        table.AddHeaderCell(
+            new Cell()
+                .Add(new Paragraph(text).SetFont(_boldFont).SetFontSize(10))
+                .SetBackgroundColor(_tableHeaderColor)
+                .SetBorder(new SolidBorder(ColorConstants.WHITE, 1))
+                .SetPadding(5)
+                .SetTextAlignment(TextAlignment.LEFT));
+    }
+
+    private void AddTableCell(Table table, string text, DeviceRgb backgroundColor)
+    {
+        table.AddCell(
+            new Cell()
+                .Add(new Paragraph(text).SetFont(_normalFont).SetFontSize(10))
+                .SetBackgroundColor(backgroundColor)
+                .SetPadding(5)
+                .SetTextAlignment(TextAlignment.LEFT));
+    }
+
+    private void CloseDocumentIfNeeded()
+    {
+        if (_isClosed)
+        {
+            return;
+        }
+
+        _document.Close();
+        _isClosed = true;
     }
 }

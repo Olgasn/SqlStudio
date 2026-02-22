@@ -3,6 +3,7 @@
 @{
     Layout = null;
     ViewData["Title"] = "Авторизация";
+    var courses = ViewBag.Courses as SelectList;
 }
 
 <!DOCTYPE html>
@@ -186,16 +187,23 @@
                                     <label class="active">Курс</label><br/>
                                     <div class="radio-options">
                                         <div class="custom-radio-group scrollable-radio-group" id="courseGroup">
-                                            @foreach (var item in (SelectList)ViewBag.Courses)
+                                            @if (courses != null)
                                             {
-                                                <p>
-                                                    <label>
-                                                        <input type="radio" name="Course" value="@item.Value"
-                                                               class="with-gap" required
-                                                               @(Model?.Course == item.Value ? "checked" : "")>
-                                                        <span>@item.Text</span>
-                                                    </label>
-                                                </p>
+                                                @foreach (var item in courses)
+                                                {
+                                                    <p>
+                                                        <label>
+                                                            <input type="radio" name="Course" value="@item.Value"
+                                                                   class="with-gap" required
+                                                                   @(Model?.Course == item.Value ? "checked" : "")>
+                                                            <span>@item.Text</span>
+                                                        </label>
+                                                    </p>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <p class="grey-text text-darken-1">Список курсов временно недоступен.</p>
                                             }
                                         </div>
                                         <span class="error-message">Пожалуйста, выберите курс</span>

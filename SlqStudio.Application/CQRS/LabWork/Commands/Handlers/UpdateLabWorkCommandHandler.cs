@@ -8,7 +8,7 @@ public class UpdateLabWorkCommandHandler : IRequestHandler<UpdateLabWorkCommand>
     private readonly ApplicationDbContext _context;
     public UpdateLabWorkCommandHandler(ApplicationDbContext context) => _context = context;
 
-    public async Task<Unit> Handle(UpdateLabWorkCommand request, CancellationToken ct)
+    public async Task Handle(UpdateLabWorkCommand request, CancellationToken ct)
     {
         var labWork = await _context.LabWorks.FindAsync(request.Id);
         if (labWork != null)
@@ -19,6 +19,5 @@ public class UpdateLabWorkCommandHandler : IRequestHandler<UpdateLabWorkCommand>
             labWork.CourseId = request.CourseId;
             await _context.SaveChangesAsync(ct);
         }
-        return Unit.Value;
     }
 }

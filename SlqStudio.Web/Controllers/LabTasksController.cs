@@ -52,6 +52,12 @@ public class LabTasksController : BaseMvcController
         }
 
         var email = HttpContext.Session.GetString("UserEmail");
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            LogWarning("Невозможно сгенерировать вариант: UserEmail отсутствует в сессии");
+            return Unauthorized();
+        }
+
         return View(_variantServices.GenerateVariant(labWorkItem.Tasks.ToList(), email));
     }
 

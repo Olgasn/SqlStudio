@@ -10,9 +10,9 @@ public static class JwtTokenExtensions
     {
         var jwtSettings = new JwtSettings
         {
-            Key = configuration["Jwt:SecretKey"],
-            Issuer = configuration["Jwt:Issuer"],
-            Audience = configuration["Jwt:Audience"],
+            Key = configuration["Jwt:SecretKey"] ?? throw new InvalidOperationException("Jwt:SecretKey is not configured."),
+            Issuer = configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer is not configured."),
+            Audience = configuration["Jwt:Audience"] ?? throw new InvalidOperationException("Jwt:Audience is not configured."),
             ExpirationMinutes = 30
         };
 

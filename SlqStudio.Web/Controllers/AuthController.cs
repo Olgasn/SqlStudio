@@ -37,18 +37,9 @@ namespace SlqStudio.Controllers
                 return RedirectToLocal(returnUrl);
             }
 
-            try
-            {
-                await LoadCoursesToViewBagAsync();
-                ViewBag.ReturnUrl = returnUrl;
-                return View();
-            }
-            catch (Exception ex)
-            {
-                LogError("Ошибка при загрузке курсов", ex);
-                TempData["ErrorMessage"] = "Произошла ошибка при загрузке данных: " + ex.Message;
-                return View();
-            }
+            await LoadCoursesToViewBagAsync();
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
         }
 
 
@@ -140,13 +131,22 @@ namespace SlqStudio.Controllers
         }
         private async Task LoadCoursesToViewBagAsync()
         {
-            var courses = await _mediator.Send(new GetAllCoursesQuery());
-            if (courses == null || !courses.Any())
+            try
             {
-                TempData["ErrorMessage"] = "Не удалось загрузить список курсов. Пожалуйста, попробуйте позже.";
-            }
+                var courses = await _mediator.Send(new GetAllCoursesQuery()) ?? new List<Course>();
+                if (!courses.Any())
+                {
+                    TempData["ErrorMessage"] = "Не удалось загрузить список курсов. Пожалуйста, попробуйте позже.";
+                }
 
-            ViewBag.Courses = new SelectList(courses, "Name", "Name");
+                ViewBag.Courses = new SelectList(courses, "Name", "Name");
+            }
+            catch (Exception ex)
+            {
+                LogError("Ошибка при загрузке курсов", ex);
+                TempData["ErrorMessage"] = "Не удалось загрузить список курсов. Проверьте подключение к базе данных.";
+                ViewBag.Courses = new SelectList(Array.Empty<string>());
+            }
         }
 
     }

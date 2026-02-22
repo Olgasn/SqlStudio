@@ -8,7 +8,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand>
     private readonly ApplicationDbContext _context;
     public DeleteTaskCommandHandler(ApplicationDbContext context) => _context = context;
 
-    public async Task<Unit> Handle(DeleteTaskCommand request, CancellationToken ct)
+    public async Task Handle(DeleteTaskCommand request, CancellationToken ct)
     {
         var taskItem = await _context.LabTasks.FindAsync(request.Id);
         if (taskItem != null)
@@ -16,6 +16,5 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand>
             _context.LabTasks.Remove(taskItem);
             await _context.SaveChangesAsync(ct);
         }
-        return Unit.Value;
     }
 }

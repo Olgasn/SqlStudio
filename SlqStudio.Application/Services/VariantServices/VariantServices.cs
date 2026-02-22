@@ -23,7 +23,7 @@ public class VariantServices
         {
             throw new ArgumentException("Cache key cannot be null or empty", nameof(cacheKey));
         }
-        if (_cache.TryGetValue(cacheKey, out List<LabTask> cachedVariant))
+        if (_cache.TryGetValue(cacheKey, out List<LabTask>? cachedVariant) && cachedVariant is not null)
         {
             return cachedVariant;
         }
@@ -53,7 +53,7 @@ public class VariantServices
         {
             throw new ArgumentException("Cache key cannot be null or empty", nameof(cacheKey));
         }
-        if (_cache.TryGetValue(cacheKey, out List<LabTask> cachedVariant))
+        if (_cache.TryGetValue(cacheKey, out List<LabTask>? cachedVariant) && cachedVariant is not null)
         {
             return cachedVariant;
         }

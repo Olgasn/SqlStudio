@@ -1,0 +1,46 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "SlqStudio.sln"
+      - "SlqStudio.Application/**"
+      - "SlqStudio.Persistence/**"
+      - "SlqStudio.Web/**"
+      - "SlqStudio.Tests/**"
+      - ".github/workflows/**"
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - "SlqStudio.sln"
+      - "SlqStudio.Application/**"
+      - "SlqStudio.Persistence/**"
+      - "SlqStudio.Web/**"
+      - "SlqStudio.Tests/**"
+      - ".github/workflows/**"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+          cache: true
+
+      - name: Restore dependencies
+        run: dotnet restore SlqStudio.sln
+
+      - name: Build solution
+        run: dotnet build SlqStudio.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test SlqStudio.sln --configuration Release --no-build --verbosity normal

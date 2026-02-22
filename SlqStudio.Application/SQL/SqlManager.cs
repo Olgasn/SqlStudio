@@ -11,6 +11,11 @@ public class SqlManager
 
     public SqlManager(string connectionString)
     {
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new ArgumentException("Connection string cannot be null or empty", nameof(connectionString));
+        }
+
         _connectionString = connectionString;
         _dataComparer = new DataComparer();
     }
@@ -147,7 +152,7 @@ public class SqlManager
             {
                 foreach (var command in sqlCommands)
                 {
-                    currentQueryType = GetSqlOperationAndTable(command);
+                    currentQueryType = GetSqlOperationAndTable(command) ?? "UNKNOWN";
                     collectedMessages.Clear();
 
                     using var cmd = new SqlCommand(command, connection, transaction);
@@ -175,7 +180,7 @@ public class SqlManager
     }
 
 
-    public string GetSqlOperationAndTable(string sqlQuery)
+    public string? GetSqlOperationAndTable(string sqlQuery)
     {
         if (string.IsNullOrWhiteSpace(sqlQuery))
             return null;
@@ -185,8 +190,8 @@ public class SqlManager
         // Приводим к верхнему регистру для упрощения поиска
         string upperSql = sqlQuery.ToUpper();
 
-        string operation = null;
-        string tableName = null;
+        string? operation = null;
+        string? tableName = null;
 
         if (upperSql.StartsWith("INSERT INTO"))
         {
@@ -212,7 +217,7 @@ public class SqlManager
         return operation != null && tableName != null ? $"{operation}_{tableName}" : null;
     }
 
-    private static string ExtractTableName(string sqlQuery, string keyword)
+    private static string? ExtractTableName(string sqlQuery, string keyword)
     {
         int keywordIndex = sqlQuery.IndexOf(keyword, StringComparison.OrdinalIgnoreCase);
         if (keywordIndex == -1)

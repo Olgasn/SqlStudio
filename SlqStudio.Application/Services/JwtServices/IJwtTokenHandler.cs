@@ -7,5 +7,5 @@ public interface IJwtTokenHandler
 {
     string GetEmailFromToken(string token);
     string GetEmailFromClaims(ClaimsPrincipal claimsPrincipal);
-    (string Email, UserRole Role,  string name) GetClaimsFromToken(string token);
+    (string Email, UserRole Role, string Name) GetClaimsFromToken(string token);
 }

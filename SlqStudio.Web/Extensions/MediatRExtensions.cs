@@ -12,7 +12,8 @@ public static class MediatRExtensions
 {
     public static void AddCustomMediatR(this IServiceCollection services)
     {
-        services.AddMediatR(
+        var assemblies = new[]
+        {
             typeof(CreateCourseCommandHandler).Assembly,
             typeof(UpdateCourseCommandHandler).Assembly,
             typeof(DeleteCourseCommandHandler).Assembly,
@@ -27,6 +28,9 @@ public static class MediatRExtensions
             typeof(UpdateTaskCommandHandler).Assembly,
             typeof(DeleteTaskCommandHandler).Assembly,
             typeof(GetAllTasksQueryHandler).Assembly,
-            typeof(GetTaskByIdQueryHandler).Assembly);
+            typeof(GetTaskByIdQueryHandler).Assembly
+        };
+
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assemblies));
     }
 }

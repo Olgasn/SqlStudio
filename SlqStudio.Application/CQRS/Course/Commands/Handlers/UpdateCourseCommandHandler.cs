@@ -8,7 +8,7 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand>
     private readonly ApplicationDbContext _context;
     public UpdateCourseCommandHandler(ApplicationDbContext context) => _context = context;
 
-    public async Task<Unit> Handle(UpdateCourseCommand request, CancellationToken ct)
+    public async Task Handle(UpdateCourseCommand request, CancellationToken ct)
     {
         var course = await _context.Courses.FindAsync(request.Id);
         if (course != null)
@@ -17,6 +17,5 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand>
             course.Description = request.Description;
             await _context.SaveChangesAsync(ct);
         }
-        return Unit.Value;
     }
 }
