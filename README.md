@@ -53,6 +53,65 @@
 - `DiagramSettings.Name` - имя файла диаграммы в `wwwroot/diagrams`.
 - `ConfigUser` - логин/пароль для страницы редактирования конфигурации.
 
+## Настройка взаимодействия с Moodle
+
+### Какие вызовы Moodle использует приложение
+
+Приложение работает с Moodle REST API и вызывает функции:
+
+- `core_user_get_users_by_field` - поиск пользователя по email при входе.
+- `core_course_get_courses` - получение списка курсов и поиск выбранного курса.
+- `core_user_get_course_user_profiles` - получение роли пользователя в выбранном курсе.
+
+### Настройка на стороне Moodle
+
+1. Включите Web Services и REST protocol в настройках Moodle.
+2. Создайте внешний сервис (External service), например `SqlStudio`.
+3. Добавьте в сервис функции:
+   - `core_user_get_users_by_field`
+   - `core_course_get_courses`
+   - `core_user_get_course_user_profiles`
+4. Создайте или выберите сервисную учетную запись Moodle и назначьте ее в созданный сервис.
+5. Сгенерируйте токен для этой учетной записи.
+6. Убедитесь, что в курсах Moodle у пользователей назначены роли. Для административных функций в SlqStudio требуется роль `editingteacher`.
+
+### Настройка на стороне SlqStudio
+
+Укажите в `SlqStudio.Web/appsettings.json` секцию:
+
+```json
+"MoodleApi": {
+  "MoodleUrl": "https://moodle.example.com/webservice/rest/server.php",
+  "Token": "your-moodle-webservice-token"
+}
+```
+
+Важные условия:
+
+- `MoodleUrl` должен указывать именно на `.../webservice/rest/server.php`.
+- В форме входа пользователь выбирает курс из локальной БД SlqStudio, после чего курс ищется в Moodle по `displayname`.
+- Значение `Course.Name` в локальной БД должно совпадать с названием курса в Moodle.
+- Права в интерфейсе SlqStudio определяются по `ShortName` роли Moodle. Для CRUD по учебному контенту нужен `editingteacher`.
+
+### Быстрая проверка подключения
+
+Проверьте токен и доступность API, выполнив запрос:
+
+```powershell
+$url = "https://moodle.example.com/webservice/rest/server.php?wstoken=YOUR_TOKEN&wsfunction=core_course_get_courses&moodlewsrestformat=json"
+Invoke-RestMethod -Method Get -Uri $url
+```
+
+Если ответ содержит JSON с курсами, базовая интеграция настроена корректно.
+
+### Частые проблемы и причины
+
+- `invalidtoken` - неверный или просроченный токен Moodle.
+- `accessexception`/`Access control exception` - в External service не добавлены нужные функции или недостаточно прав у сервисного пользователя.
+- Вход сообщает "Пользователь с таким email не найден" - email отсутствует в Moodle или не совпадает.
+- Вход сообщает "Выбранный курс не найден" - имя курса в SlqStudio не совпадает с `displayname` в Moodle.
+- Вход сообщает "Не удалось определить вашу роль" - пользователь не имеет роли в выбранном курсе Moodle.
+
 ## Локальный запуск
 
 1. Установить `.NET SDK 10`.
