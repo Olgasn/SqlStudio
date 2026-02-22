@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\SlqStudio.props" />
-</Project>
