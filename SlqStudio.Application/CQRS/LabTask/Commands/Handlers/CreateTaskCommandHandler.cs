@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using SlqStudio.Persistence;
 
-namespace SlqStudio.Application.CQRS.LabTask.Commands.Handler;
+namespace SlqStudio.Application.CQRS.LabTask.Commands.Handlers;
 
 public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, int>
 {

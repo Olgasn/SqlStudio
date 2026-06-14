@@ -1,6 +1,6 @@
-﻿using Application.Common.SQL.Utils.Enum;
+﻿using SlqStudio.Application.SQL.Utils.Enum;
 
-namespace Application.Common.SQL.Utils;
+namespace SlqStudio.Application.SQL.Utils;
 
 public static class SqlCommandTypeDetector
 {

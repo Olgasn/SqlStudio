@@ -1,6 +1,6 @@
 ﻿using SlqStudio.Persistence.Models;
 
-namespace SlqStudio.DTO;
+namespace SlqStudio.Application.DTO;
 
 public class ReportDto
 {

@@ -1,4 +1,4 @@
-﻿namespace SlqStudio.ViewModel.Log;
+﻿namespace SlqStudio.ViewModel.Logs;
 
 public class LogFileListViewModel
 {

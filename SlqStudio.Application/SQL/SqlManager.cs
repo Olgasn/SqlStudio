@@ -1,8 +1,10 @@
 ﻿using System.Data;
-using Application.Common.SQL.ResponseModels;
-using Application.Common.SQL.Utils;
+using SlqStudio.Application.SQL.ResponseModels;
+using SlqStudio.Application.SQL.Utils;
 using Dapper;
 using Microsoft.Data.SqlClient;
+
+namespace SlqStudio.Application.SQL;
 
 public class SqlManager
 {

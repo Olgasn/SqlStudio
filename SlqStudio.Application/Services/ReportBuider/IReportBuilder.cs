@@ -1,4 +1,4 @@
-﻿using SlqStudio.DTO;
+﻿using SlqStudio.Application.DTO;
 using SlqStudio.Persistence.Models;
 
 namespace SlqStudio.Application.Services.ReportBuider;

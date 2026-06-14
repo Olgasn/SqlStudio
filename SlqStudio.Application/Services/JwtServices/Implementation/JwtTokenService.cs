@@ -4,9 +4,9 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using SlqStudio.Application.Services.Models;
+using SlqStudio.Application.Services.JwtServices.Models;
 
-namespace SlqStudio.Application.Services.Implementation;
+namespace SlqStudio.Application.Services.JwtServices.Implementation;
 
 public class JwtTokenService : IJwtTokenService
 {

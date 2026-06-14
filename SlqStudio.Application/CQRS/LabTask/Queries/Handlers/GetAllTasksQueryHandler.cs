@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SlqStudio.Persistence;
 
-namespace SlqStudio.Application.CQRS.LabTask.Queries.Handler;
+namespace SlqStudio.Application.CQRS.LabTask.Queries.Handlers;
 
 public class GetAllTasksQueryHandler : IRequestHandler<GetAllTasksQuery, List<Persistence.Models.LabTask>>
 {

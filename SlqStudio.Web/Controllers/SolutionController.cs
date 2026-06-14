@@ -1,6 +1,6 @@
-﻿using Application.Common.SQL;
-using Application.Common.SQL.ResponseModels;
-using Application.Common.SQL.Utils;
+﻿using SlqStudio.Application.SQL;
+using SlqStudio.Application.SQL.ResponseModels;
+using SlqStudio.Application.SQL.Utils;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -10,7 +10,6 @@ using SlqStudio.Application.Services.VariantServices;
 using SlqStudio.Session;
 using SlqStudio.ViewModel.Mappers;
 using SlqStudio.ViewModel.Models;
-using SlqStudio.ViewModels;
 
 namespace SlqStudio.Controllers;
 

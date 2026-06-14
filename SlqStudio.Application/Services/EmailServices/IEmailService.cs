@@ -1,4 +1,4 @@
-﻿namespace SlqStudio.Application.Services.EmailService;
+﻿namespace SlqStudio.Application.Services.EmailServices;
 
 public interface IEmailService
 {

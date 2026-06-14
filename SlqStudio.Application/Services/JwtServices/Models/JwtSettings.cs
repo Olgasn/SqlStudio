@@ -1,4 +1,4 @@
-﻿namespace SlqStudio.Application.Services.Models;
+﻿namespace SlqStudio.Application.Services.JwtServices.Models;
 
 public class JwtSettings
 {

@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SlqStudio.Application.Services;
+using SlqStudio.Application.Services.JwtServices;
 using SlqStudio.Models;
 
 namespace SlqStudio.Controllers;

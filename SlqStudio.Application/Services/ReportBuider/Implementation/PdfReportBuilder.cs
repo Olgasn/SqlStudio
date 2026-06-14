@@ -8,10 +8,10 @@ using iText.Layout;
 using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
-using SlqStudio.DTO;
+using SlqStudio.Application.DTO;
 using SlqStudio.Persistence.Models;
 
-namespace SlqStudio.Application.Services.ReportBuider;
+namespace SlqStudio.Application.Services.ReportBuider.Implementation;
 
 public class PdfReportBuilder : IPdfReportBuilder, IDisposable
 {

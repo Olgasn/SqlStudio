@@ -1,6 +1,6 @@
-﻿using SlqStudio.Application.Services;
-using SlqStudio.Application.Services.Implementation;
-using SlqStudio.Application.Services.Models;
+﻿using SlqStudio.Application.Services.JwtServices;
+using SlqStudio.Application.Services.JwtServices.Implementation;
+using SlqStudio.Application.Services.JwtServices.Models;
 
 namespace SlqStudio.Extensions;
 

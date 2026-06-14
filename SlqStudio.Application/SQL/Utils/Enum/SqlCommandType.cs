@@ -1,4 +1,4 @@
-﻿namespace Application.Common.SQL.Utils.Enum;
+﻿namespace SlqStudio.Application.SQL.Utils.Enum;
 
 public enum SqlCommandType
 {

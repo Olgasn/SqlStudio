@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
-using SlqStudio.Application.Services.Models;
+using SlqStudio.Application.Services.JwtServices.Models;
 
-namespace SlqStudio.Application.Services;
+namespace SlqStudio.Application.Services.JwtServices;
 
 public interface IJwtTokenHandler
 {

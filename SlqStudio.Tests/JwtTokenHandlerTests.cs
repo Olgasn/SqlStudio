@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using SlqStudio.Application.Services.Implementation;
-using SlqStudio.Application.Services.Models;
+using SlqStudio.Application.Services.JwtServices.Implementation;
+using SlqStudio.Application.Services.JwtServices.Models;
 
 namespace SlqStudio.Tests;
 
@@ -45,6 +45,29 @@ public sealed class JwtTokenHandlerTests
     }
 
     [Fact]
+    public void GetEmailFromClaims_WhenClaimMissing_ReturnsEmptyString()
+    {
+        var principal = new ClaimsPrincipal(
+            new ClaimsIdentity(
+                new[] { new Claim(ClaimTypes.Name, "No Email") },
+                authenticationType: "TestAuth"));
+
+        var email = _handler.GetEmailFromClaims(principal);
+
+        Assert.Equal(string.Empty, email);
+    }
+
+    [Fact]
+    public void GetEmailFromClaims_WhenNoIdentity_ReturnsEmptyString()
+    {
+        var principal = new ClaimsPrincipal();
+
+        var email = _handler.GetEmailFromClaims(principal);
+
+        Assert.Equal(string.Empty, email);
+    }
+
+    [Fact]
     public void GetClaimsFromToken_ReturnsEmailRoleAndName()
     {
         var token = CreateToken(
@@ -57,6 +80,42 @@ public sealed class JwtTokenHandlerTests
         Assert.Equal("teacher@example.com", email);
         Assert.Equal(UserRole.EditingTeacher, role);
         Assert.Equal("Teacher Name", name);
+    }
+
+    [Fact]
+    public void GetClaimsFromToken_RoleParsingIsCaseInsensitive()
+    {
+        var token = CreateToken(
+            new Claim(ClaimTypes.Email, "student@example.com"),
+            new Claim(ClaimTypes.Role, "student"));
+
+        var (_, role, _) = _handler.GetClaimsFromToken(token);
+
+        Assert.Equal(UserRole.Student, role);
+    }
+
+    [Fact]
+    public void GetClaimsFromToken_WhenRoleMissing_ReturnsDefaultRole()
+    {
+        var token = CreateToken(new Claim(ClaimTypes.Email, "student@example.com"));
+
+        var (email, role, name) = _handler.GetClaimsFromToken(token);
+
+        Assert.Equal("student@example.com", email);
+        Assert.Equal(default, role);
+        Assert.Equal(string.Empty, name);
+    }
+
+    [Fact]
+    public void GetClaimsFromToken_WhenRoleIsUnrecognized_ReturnsDefaultRole()
+    {
+        var token = CreateToken(
+            new Claim(ClaimTypes.Email, "student@example.com"),
+            new Claim(ClaimTypes.Role, "NotARealRole"));
+
+        var (_, role, _) = _handler.GetClaimsFromToken(token);
+
+        Assert.Equal(default, role);
     }
 
     private static string CreateToken(params Claim[] claims)

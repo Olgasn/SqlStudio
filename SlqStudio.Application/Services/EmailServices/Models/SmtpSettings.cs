@@ -1,4 +1,4 @@
-﻿namespace SlqStudio.Application.Services.EmailService.Models;
+﻿namespace SlqStudio.Application.Services.EmailServices.Models;
 
 public class SmtpSettings
 {

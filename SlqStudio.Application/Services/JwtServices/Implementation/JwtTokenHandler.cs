@@ -1,8 +1,8 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using SlqStudio.Application.Services.Models;
+using SlqStudio.Application.Services.JwtServices.Models;
 
-namespace SlqStudio.Application.Services.Implementation;
+namespace SlqStudio.Application.Services.JwtServices.Implementation;
 
 public class JwtTokenHandler : IJwtTokenHandler
 {

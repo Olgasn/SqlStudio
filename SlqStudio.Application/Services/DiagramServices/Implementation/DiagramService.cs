@@ -12,7 +12,7 @@ public class DiagramService : IDiagramService
             }
             return string.Empty;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return string.Empty;
         }

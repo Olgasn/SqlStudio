@@ -1,4 +1,4 @@
-﻿namespace SlqStudio.DTO;
+﻿namespace SlqStudio.Application.DTO;
 
 public class SolutionResultDto
 {

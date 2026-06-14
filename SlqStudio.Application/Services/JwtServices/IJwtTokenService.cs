@@ -1,4 +1,4 @@
-﻿namespace SlqStudio.Application.Services;
+﻿namespace SlqStudio.Application.Services.JwtServices;
 
 ﻿public interface IJwtTokenService
 {

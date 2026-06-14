@@ -1,4 +1,4 @@
-﻿namespace Application.Common.SQL.ResponseModels
+﻿namespace SlqStudio.Application.SQL.ResponseModels
 {
     public class CompareResponse
     {

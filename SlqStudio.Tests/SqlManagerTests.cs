@@ -1,3 +1,5 @@
+using SlqStudio.Application.SQL;
+
 namespace SlqStudio.Tests;
 
 public sealed class SqlManagerTests
@@ -27,15 +29,31 @@ public sealed class SqlManagerTests
     }
 
     [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    [InlineData("CREATE TABLE Students(Id INT)")]
-    [InlineData("EXEC SomeProcedure")]
-    public void GetSqlOperationAndTable_WhenUnsupported_ReturnsNull(string sql)
+    [InlineData("INSERT INTO Orders(Id, Total) VALUES (1, 10)", "INSERT_Orders")]
+    [InlineData("UPDATE dbo.Students SET Name='A' WHERE Id=1", "UPDATE_dbo.Students")]
+    [InlineData("SELECT Id, Name\nFROM Students\nWHERE Id = 1", "SELECT_Students")]
+    [InlineData("select id from students where id = 1", "SELECT_students")]
+    public void GetSqlOperationAndTable_HandlesColumnListsSchemasAndMultiline(string sql, string expected)
     {
         var manager = new SqlManager("Server=.;Database=Dummy;Trusted_Connection=True;");
 
         var result = manager.GetSqlOperationAndTable(sql);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("CREATE TABLE Students(Id INT)")]
+    [InlineData("EXEC SomeProcedure")]
+    [InlineData("DELETE Students WHERE Id=1")]
+    public void GetSqlOperationAndTable_WhenUnsupported_ReturnsNull(string? sql)
+    {
+        var manager = new SqlManager("Server=.;Database=Dummy;Trusted_Connection=True;");
+
+        var result = manager.GetSqlOperationAndTable(sql!);
 
         Assert.Null(result);
     }

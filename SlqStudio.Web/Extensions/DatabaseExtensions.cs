@@ -1,4 +1,4 @@
-﻿using Application.Common.SQL;
+﻿using SlqStudio.Application.SQL;
 using Microsoft.EntityFrameworkCore;
 using SlqStudio.Persistence;
 

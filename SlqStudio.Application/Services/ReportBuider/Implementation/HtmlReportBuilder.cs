@@ -1,7 +1,9 @@
 ﻿using System.Text;
 using SlqStudio.Application.Services.ReportBuider;
-using SlqStudio.DTO;
+using SlqStudio.Application.DTO;
 using SlqStudio.Persistence.Models;
+
+namespace SlqStudio.Application.Services.ReportBuider.Implementation;
 
 public class HtmlReportBuilder : IHtmlReportBuilder
 {

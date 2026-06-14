@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Options;
-using SlqStudio.Application.Services.EmailService.Models;
+using SlqStudio.Application.Services.EmailServices.Models;
 
-namespace SlqStudio.Application.Services.EmailService.Implementation;
+namespace SlqStudio.Application.Services.EmailServices.Implementation;
 
 public class EmailService : IEmailService
 {
@@ -37,9 +37,9 @@ public class EmailService : IEmailService
             await smtp.SendMailAsync(message);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return false; 
+            return false;
         }
     }
 }

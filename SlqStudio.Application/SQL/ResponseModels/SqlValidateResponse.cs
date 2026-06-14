@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Common.SQL.ResponseModels
+namespace SlqStudio.Application.SQL.ResponseModels
 {
     public class SqlValidateResponse
     {

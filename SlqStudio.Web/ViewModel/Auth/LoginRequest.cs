@@ -1,4 +1,4 @@
-﻿namespace SlqStudio.ViewModels.Auth;
+﻿namespace SlqStudio.ViewModel.Auth;
 
 public class LoginRequest
 {

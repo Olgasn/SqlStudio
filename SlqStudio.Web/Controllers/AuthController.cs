@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SlqStudio.Application.ApiClients.Moodle;
 using SlqStudio.Application.CQRS.Course.Queries;
-using SlqStudio.Application.Services;
+using SlqStudio.Application.Services.JwtServices;
 using SlqStudio.Persistence.Models;
-using SlqStudio.ViewModels.Auth;
+using SlqStudio.ViewModel.Auth;
 
 namespace SlqStudio.Controllers
 {

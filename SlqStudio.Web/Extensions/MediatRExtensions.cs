@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using SlqStudio.Application.CQRS.Course.Commands.Handlers;
 using SlqStudio.Application.CQRS.Course.Queries.Handlers;
-using SlqStudio.Application.CQRS.LabTask.Commands.Handler;
-using SlqStudio.Application.CQRS.LabTask.Queries.Handler;
+using SlqStudio.Application.CQRS.LabTask.Commands.Handlers;
+using SlqStudio.Application.CQRS.LabTask.Queries.Handlers;
 using SlqStudio.Application.CQRS.LabWork.Commands.Handlers;
 using SlqStudio.Application.CQRS.LabWork.Queries.Handlers;
 

@@ -1,12 +1,13 @@
-﻿using Application.Common.SQL.ResponseModels;
+﻿using SlqStudio.Application.SQL.ResponseModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SlqStudio.Application.CQRS.LabTask.Queries;
 using SlqStudio.Application.CQRS.LabWork.Queries;
-using SlqStudio.Application.Services.EmailService;
+using SlqStudio.Application.Services.EmailServices;
 using SlqStudio.Application.Services.ReportBuider;
+using SlqStudio.Application.Services.ReportBuider.Implementation;
 using SlqStudio.Application.Services.VariantServices;
-using SlqStudio.DTO;
+using SlqStudio.Application.DTO;
 using SlqStudio.Persistence.Models;
 using SlqStudio.Session;
 

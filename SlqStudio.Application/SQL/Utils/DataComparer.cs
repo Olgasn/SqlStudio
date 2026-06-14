@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Common.SQL.Utils
+namespace SlqStudio.Application.SQL.Utils
 {
     public class DataComparer
     {
@@ -12,6 +12,10 @@ namespace Application.Common.SQL.Utils
         {
             if (!HaveSameRecordCount(result1, result2))
                 return false;
+
+            // Два пустых набора эквивалентны; столбцы сравнивать не из чего.
+            if (result1.Count == 0)
+                return true;
 
             if (!CompareColumnNames(result1.First().Keys.ToList(), result2.First().Keys.ToList()))
                 return false;
@@ -41,7 +45,8 @@ namespace Application.Common.SQL.Utils
             for (int i = 0; i < result1.Count; i++)
             {
                 var row1 = result1[i];
-                var row2 = result2[i];
+                // Поиск столбцов ведём без учёта регистра, согласованно с CompareColumnNames.
+                var row2 = new Dictionary<string, object>(result2[i], StringComparer.OrdinalIgnoreCase);
 
                 if (row1.Count != row2.Count)
                     return false;
@@ -81,6 +86,9 @@ namespace Application.Common.SQL.Utils
                         {
                             return false;
                         }
+
+                        // Конвертации удались, но значения не совпали — наборы различаются.
+                        return false;
                     }
                     else if (!Equals(value1, value2))
                     {

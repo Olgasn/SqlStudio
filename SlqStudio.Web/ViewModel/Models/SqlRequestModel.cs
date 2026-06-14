@@ -1,4 +1,4 @@
-﻿namespace SlqStudio.ViewModels;
+﻿namespace SlqStudio.ViewModel.Models;
 
 public class SqlRequestModel
 {

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SlqStudio.Application.CQRS.Course.Commands;
-using SlqStudio.Application.CQRS.Course.Commands.Handlers;
 using SlqStudio.Application.CQRS.Course.Queries;
 
 namespace SlqStudio.Controllers;

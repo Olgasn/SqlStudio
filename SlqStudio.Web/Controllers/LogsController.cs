@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SlqStudio.Application.Services.LogFileServices;
-using SlqStudio.ViewModel.Log;
+using SlqStudio.ViewModel.Logs;
 
 namespace SlqStudio.Controllers
 {

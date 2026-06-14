@@ -1,7 +1,7 @@
-﻿using SlqStudio.DTO;
+﻿using SlqStudio.Application.DTO;
 using SlqStudio.Persistence.Models;
 
-namespace SlqStudio.Application.Services.ReportBuider;
+namespace SlqStudio.Application.Services.ReportBuider.Implementation;
 
 public class ReportDirector
 {
