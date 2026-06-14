@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using SlqStudio.Application.CQRS.Course.Commands;
@@ -15,18 +16,21 @@ public class ConfigController : BaseMvcController
     private readonly IAppSettingsService _appSettingsService;
     private readonly AppSettingsBuilder _appSettingsBuilder;
     private readonly IMediator _mediator;
+    private readonly IConfiguration _configuration;
     private readonly string _appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
 
     public ConfigController(
         IAppSettingsService appSettingsService,
         AppSettingsBuilder appSettingsBuilder,
         IMediator mediator,
+        IConfiguration configuration,
         ILogger<ConfigController> logger
     ) : base(logger)
     {
         _appSettingsService = appSettingsService;
         _appSettingsBuilder = appSettingsBuilder;
         _mediator = mediator;
+        _configuration = configuration;
     }
 
     public IActionResult Login()
@@ -42,12 +46,10 @@ public class ConfigController : BaseMvcController
 
         try
         {
-            var config = _appSettingsService.ReadConfig(_appSettingsPath);
-            var userSection = config["ConfigUser"];
+            var expectedName = _configuration["ConfigUser:Name"];
+            var expectedPassword = _configuration["ConfigUser:Password"];
 
-            if (userSection != null &&
-                name == userSection["Name"]?.ToString() &&
-                password == userSection["Password"]?.ToString())
+            if (name == expectedName && password == expectedPassword)
             {
                 HttpContext.Session.SetString("IsConfigAuthorized", "true");
                 LogInfo("Успешный вход", new { name });
