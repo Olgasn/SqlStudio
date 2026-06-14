@@ -26,6 +26,11 @@
 
                     <div class="divider" style="margin: 20px 0;"></div>
 
+                    <a asp-controller="Config" asp-action="CoursesList"
+                       class="btn waves-effect waves-light teal" style="margin-bottom: 24px;">
+                        <i class="material-icons left">school</i>Управление курсами
+                    </a>
+
                     <form asp-action="SaveConfig" method="post">
                         @foreach (var configSection in Model.Properties())
                         {

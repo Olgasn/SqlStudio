@@ -1,24 +1,32 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using SlqStudio.Application.CQRS.Course.Commands;
+using SlqStudio.Application.CQRS.Course.Queries;
 using SlqStudio.Application.Services.AppSettingsServices;
 
 namespace SlqStudio.Controllers;
 
+[AllowAnonymous]
 public class ConfigController : BaseMvcController
 {
     private readonly IAppSettingsService _appSettingsService;
     private readonly AppSettingsBuilder _appSettingsBuilder;
+    private readonly IMediator _mediator;
     private readonly string _appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
 
     public ConfigController(
         IAppSettingsService appSettingsService,
         AppSettingsBuilder appSettingsBuilder,
+        IMediator mediator,
         ILogger<ConfigController> logger
     ) : base(logger)
     {
         _appSettingsService = appSettingsService;
         _appSettingsBuilder = appSettingsBuilder;
+        _mediator = mediator;
     }
 
     public IActionResult Login()
@@ -98,4 +106,41 @@ public class ConfigController : BaseMvcController
             throw;
         }
     }
+
+    public async Task<IActionResult> CoursesList()
+    {
+        if (!IsConfigAuthorized()) return RedirectToAction("Login");
+        var courses = await _mediator.Send(new GetAllCoursesQuery());
+        return View(courses);
+    }
+
+    public IActionResult CourseCreate()
+    {
+        if (!IsConfigAuthorized()) return RedirectToAction("Login");
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CourseCreate(CreateCourseCommand command)
+    {
+        if (!IsConfigAuthorized()) return RedirectToAction("Login");
+        if (!ModelState.IsValid) return View(command);
+        await _mediator.Send(command);
+        LogInfo("Курс создан через Config", command);
+        return RedirectToAction("CoursesList");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CourseDelete(int id)
+    {
+        if (!IsConfigAuthorized()) return RedirectToAction("Login");
+        await _mediator.Send(new DeleteCourseCommand(id));
+        LogInfo("Курс удалён через Config", new { id });
+        return RedirectToAction("CoursesList");
+    }
+
+    private bool IsConfigAuthorized() =>
+        HttpContext.Session.GetString("IsConfigAuthorized") == "true";
 }

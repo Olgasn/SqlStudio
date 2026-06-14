@@ -1,0 +1,60 @@
+@model SlqStudio.Application.CQRS.Course.Commands.CreateCourseCommand
+@{
+    ViewData["Title"] = "Добавить курс";
+    Layout = "_Layout";
+}
+
+<main class="container">
+    <div class="row">
+        <div class="col s12 m8 offset-m2">
+            <div class="card">
+                <div class="card-content">
+                    <div class="row valign-wrapper" style="margin-bottom: 0;">
+                        <div class="col s8">
+                            <span class="card-title">Добавить курс</span>
+                        </div>
+                        <div class="col s4 right-align">
+                            <a asp-controller="Config" asp-action="CoursesList"
+                               class="btn waves-effect waves-light grey">
+                                <i class="material-icons left">arrow_back</i>Назад
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="divider" style="margin: 20px 0;"></div>
+
+                    <div class="card-panel blue lighten-5" style="margin-bottom: 16px;">
+                        <i class="material-icons" style="vertical-align: middle; font-size: 18px;">info</i>
+                        Название курса должно точно совпадать с названием курса в Moodle.
+                    </div>
+
+                    <form asp-controller="Config" asp-action="CourseCreate" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input asp-for="Name" id="Name" type="text" class="validate" required />
+                                <label for="Name">Название курса</label>
+                                <span asp-validation-for="Name" class="red-text helper-text"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <textarea asp-for="Description" id="Description"
+                                          class="materialize-textarea"></textarea>
+                                <label for="Description">Описание</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <button type="submit"
+                                        class="btn waves-effect waves-light light-blue darken-3">
+                                    <i class="material-icons left">save</i>Сохранить
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

@@ -1,0 +1,75 @@
+@model IEnumerable<SlqStudio.Persistence.Models.Course>
+@{
+    ViewData["Title"] = "Управление курсами";
+    Layout = "_Layout";
+}
+
+<main class="container">
+    <div class="row">
+        <div class="col s12">
+            <div class="card">
+                <div class="card-content">
+                    <div class="row valign-wrapper" style="margin-bottom: 0;">
+                        <div class="col s8">
+                            <span class="card-title">Управление курсами</span>
+                        </div>
+                        <div class="col s4 right-align">
+                            <a asp-controller="Config" asp-action="EditConfig"
+                               class="btn waves-effect waves-light grey">
+                                <i class="material-icons left">arrow_back</i>Назад
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="divider" style="margin: 20px 0;"></div>
+
+                    <a asp-controller="Config" asp-action="CourseCreate"
+                       class="btn waves-effect waves-light light-blue darken-3 mb-4">
+                        <i class="material-icons left">add</i>Добавить курс
+                    </a>
+
+                    @if (!Model.Any())
+                    {
+                        <div class="card-panel orange lighten-4" style="margin-top: 16px;">
+                            <i class="material-icons" style="vertical-align: middle;">warning</i>
+                            Курсов нет. Добавьте хотя бы один курс, чтобы пользователи могли войти в систему.
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="striped highlight" style="margin-top: 16px;">
+                            <thead>
+                                <tr>
+                                    <th>Название</th>
+                                    <th>Описание</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var course in Model)
+                                {
+                                    <tr>
+                                        <td>@course.Name</td>
+                                        <td>@course.Description</td>
+                                        <td class="right-align">
+                                            <form asp-controller="Config" asp-action="CourseDelete"
+                                                  method="post" style="display:inline;"
+                                                  onsubmit="return confirm('Удалить курс «@course.Name»?')">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@course.Id" />
+                                                <button type="submit"
+                                                        class="btn waves-effect waves-light red lighten-1 btn-small">
+                                                    <i class="material-icons left">delete</i>Удалить
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

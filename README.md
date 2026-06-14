@@ -181,16 +181,80 @@
 
 > **Важно:** Ограничьте доступ к маршруту `/Config/*` на уровне обратного прокси-сервера или сети — через эту страницу можно изменить любые параметры приложения.
 
+## Управление секретами (пароли и токены)
+
+В файле `appsettings.json` секретные поля оставлены пустыми — файл безопасен для коммита в репозиторий. Реальные значения передаются одним из двух способов в зависимости от окружения.
+
+### Локальная разработка — ASP.NET Core User Secrets
+
+User Secrets хранятся вне репозитория в профиле пользователя (`%APPDATA%\Microsoft\UserSecrets\`) и автоматически применяются поверх `appsettings.json` в режиме `Development`:
+
+```powershell
+# Один раз: инициализация хранилища (если UserSecretsId ещё не добавлен в .csproj)
+dotnet user-secrets init --project SlqStudio.Web/SlqStudio.Web.csproj
+
+# Установка секретных значений
+dotnet user-secrets set "ConnectionStrings:MySQL" "Server=localhost;Database=sqlstudio;User=root;Password=ВАШ_ПАРОЛЬ;Allow User Variables=true;" --project SlqStudio.Web/SlqStudio.Web.csproj
+dotnet user-secrets set "Jwt:SecretKey" "ВАШ_СЕКРЕТНЫЙ_КЛЮЧ_МИНИМУМ_32_СИМВОЛА" --project SlqStudio.Web/SlqStudio.Web.csproj
+dotnet user-secrets set "MoodleApi:Token" "ВАШ_ТОКЕН_MOODLE" --project SlqStudio.Web/SlqStudio.Web.csproj
+dotnet user-secrets set "SmtpSettings:Password" "ВАШ_SMTP_ПАРОЛЬ" --project SlqStudio.Web/SlqStudio.Web.csproj
+dotnet user-secrets set "ConfigUser:Password" "ВАШ_ПАРОЛЬ_КОНФИГУРАЦИИ" --project SlqStudio.Web/SlqStudio.Web.csproj
+
+# Просмотр сохранённых секретов
+dotnet user-secrets list --project SlqStudio.Web/SlqStudio.Web.csproj
+```
+
+### Продакшн — переменные окружения
+
+В производственной среде передавайте секреты через переменные окружения с разделителем `__` (ASP.NET Core автоматически преобразует их в иерархические ключи конфигурации):
+
+| Секрет | Переменная окружения |
+|--------|---------------------|
+| Строка подключения MySQL | `ConnectionStrings__MySQL` |
+| Ключ подписи JWT | `Jwt__SecretKey` |
+| Токен Moodle | `MoodleApi__Token` |
+| Пароль SMTP | `SmtpSettings__Password` |
+| Пароль страницы Config | `ConfigUser__Password` |
+
+```powershell
+# Пример установки для Windows PowerShell / IIS
+$env:ConnectionStrings__MySQL = "Server=...;Database=sqlstudio;User=...;Password=...;Allow User Variables=true;"
+$env:Jwt__SecretKey           = "ВАШ_СЕКРЕТНЫЙ_КЛЮЧ_МИНИМУМ_32_СИМВОЛА"
+$env:MoodleApi__Token         = "ВАШ_ТОКЕН_MOODLE"
+$env:SmtpSettings__Password   = "ВАШ_SMTP_ПАРОЛЬ"
+$env:ConfigUser__Password     = "ВАШ_ПАРОЛЬ_КОНФИГУРАЦИИ"
+```
+
+> **Правило:** Никогда не коммитьте реальные пароли и токены в репозиторий. `appsettings.json` содержит только структуру и несекретные значения по умолчанию.
+
 ## Настройка интеграции с Moodle
 
 Полное руководство по настройке веб-сервиса Moodle, получению токена доступа и проверке подключения приведено в отдельном документе: [moodle-setup.md](moodle-setup.md).
 
 ## Локальный запуск
 
-1. Установите пакет `.NET SDK 10`.
-2. Обеспечьте доступность серверов MySQL и SQL Server.
-3. Настройте файл `SlqStudio.Web/appsettings.json`.
-4. Выполните следующие команды:
+### 1. Предварительные требования
+
+- Установите `.NET SDK 10`.
+- Обеспечьте доступность серверов MySQL и SQL Server.
+
+### 2. Настройка секретов
+
+Задайте секреты через User Secrets (подробнее — в разделе [Управление секретами](#управление-секретами-пароли-и-токены)). Несекретные параметры (URL Moodle, адрес SMTP-сервера и т. п.) при необходимости скорректируйте в `SlqStudio.Web/appsettings.json`.
+
+### 3. Инициализация базы данных
+
+```powershell
+dotnet tool install --global dotnet-ef
+dotnet ef migrations add InitialCreate `
+  --project SlqStudio.Persistence/SlqStudio.Persistence.csproj `
+  --startup-project SlqStudio.Web/SlqStudio.Web.csproj --output-dir Migrations
+dotnet ef database update `
+  --project SlqStudio.Persistence/SlqStudio.Persistence.csproj `
+  --startup-project SlqStudio.Web/SlqStudio.Web.csproj
+```
+
+### 4. Сборка и запуск
 
 ```powershell
 dotnet restore SlqStudio.sln
@@ -199,6 +263,15 @@ dotnet run --project SlqStudio.Web/SlqStudio.Web.csproj
 ```
 
 По умолчанию приложение доступно по адресу `http://0.0.0.0:5000`.
+
+### 5. Первоначальная настройка (только при первом запуске)
+
+После первого запуска база данных пуста — курсов нет. Без курсов вход через `/Auth/Login` невозможен. Создайте первый курс через страницу конфигурации:
+
+1. Откройте `/Config/Login` и войдите под учётными данными `ConfigUser` (`Name` / `Password` из `appsettings.json` или User Secrets).
+2. В открывшемся интерфейсе конфигурации нажмите кнопку **Управление курсами**.
+3. Нажмите **Добавить курс** и введите название — оно должно точно совпадать с названием курса в Moodle.
+4. После создания курса вход через `/Auth/Login` становится доступен.
 
 ## Тестирование
 
@@ -266,7 +339,16 @@ dotnet ef database update `
 
 ### 4. Внесение начальных данных
 
-При входе в систему пользователь выбирает курс из базы данных приложения. После инициализации базы данных необходимо создать как минимум один курс — средствами базы данных или административного интерфейса, — в противном случае вход в систему будет невозможен.
+При входе в систему пользователь выбирает курс из базы данных приложения. После инициализации базы данных необходимо создать как минимум один курс, иначе вход через `/Auth/Login` будет невозможен.
+
+Создание первого курса выполняется через страницу конфигурации (она использует отдельную сессионную авторизацию и не зависит от JWT и Moodle):
+
+1. Откройте `/Config/Login` и войдите под учётными данными `ConfigUser`.
+2. В интерфейсе конфигурации нажмите кнопку **Управление курсами**.
+3. Нажмите **Добавить курс** и укажите название — оно должно точно совпадать с названием курса в Moodle.
+4. После этого обычный вход через `/Auth/Login` становится доступен.
+
+В дальнейшем курсами также можно управлять из административного интерфейса (`CoursesController`) при наличии роли `editingteacher`.
 
 ### 5. Сборка и публикация приложения
 
